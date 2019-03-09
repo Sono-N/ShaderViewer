@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <title>WebGL</title>
+    <script src="js/script.js" type="text/javascript"></script>
+    <script src="js/myMatrix.js" type="text/javascript"></script>
+    <script id="vshader" type="shader">
+      attribute vec3 position;
+      uniform mat4 mvpMat;
+      void main(void){
+        gl_Position = mvpMat * vec4(position, 1.0);
+      }
+    </script>
+    <script id="fshader" type="shader">
+      void main(void){
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+      }
+    </script>
+  </head>
+  <body>
+      <canvas id="canvas"></canvas>
+  </body>
+</html>
