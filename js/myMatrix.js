@@ -24,7 +24,7 @@ function mat() {
         dest[8]=m1[8]+m2[8]; dest[9]=m1[9]+m2[9]; dest[10]= m1[10]+m2[10]; dest[11]=m1[11]+m2[11];
         dest[12]=m1[12]+m2[12]; dest[13]=m1[13]+m2[13]; dest[14]= m1[14]+m2[14]; dest[15]=m1[15]+m2[15];
         return dest;
-    };
+    }
     this.multiply = function(m1, m2){
         var dest=[];
         var m1_00=m1[0], m1_01=m1[1], m1_02=m1[2], m1_03=m1[3],
@@ -64,7 +64,8 @@ function mat() {
         dest[1] = v1_2*v2_0 - v1_0*v2_2;
         dest[2] = v1_0*v2_1 - v1_1*v2_0;
         return dest;
-    };
+    }
+
     this.scale = function(vec){
         return[
         vec[0],0,0,0,
@@ -72,7 +73,7 @@ function mat() {
         0,0,vec[2],0,
         0,0,0,1
         ];
-    };
+    }
     this.translate = function(vec){
         return[
         1,0,0,vec[0],
@@ -80,7 +81,7 @@ function mat() {
         0,0,1,vec[2],
         0,0,0,1
         ];
-    };
+    }
     this.rotate = function(angle, axis){
         var sin = Math.sin(angle), cos = Math.cos(angle), cos_diff = 1-cos;
         var ax=axis[0], ay=axis[1], az=axis[2];
@@ -90,7 +91,7 @@ function mat() {
         z*ax*cos_diff-ay*sin, ay*az*cos_diff+ax*sin, cos+az*az*cos_diff,0,
         0,0,0,1
         ];
-    };
+    }
     this.rotatex = function(angle){
         var sin = Math.sin(angle), cos = Math.cos(angle);
         return[
@@ -99,7 +100,7 @@ function mat() {
         0,sin,cos,0,
         0,0,0,1
         ];
-    };
+    }
     this.rotatey = function(angle){
         var sin = Math.sin(angle), cos = Math.cos(angle);
         return[
@@ -108,7 +109,7 @@ function mat() {
         -sin,0,cos,0,
         0,0,0,1
         ];
-    };
+    }
     this.rotatez = function(angle){
         var sin = Math.sin(angle), cos = Math.cos(angle);
         return[
@@ -117,7 +118,7 @@ function mat() {
         0,0,1,0,
         0,0,0,1
         ];
-    };
+    }
     this.lookat = function(pos, goal, up){
         var ex=pos[0], ey=pos[1], ez=pos[2],
         ux=up[0], uy=up[1], uz=up[2],
@@ -146,7 +147,7 @@ function mat() {
         zx, zy, zz, -ex*zx-ey*zy-ez*zz,
         0, 0, 0, 1
         ];
-    };
+    }
     this.perspective = function(fovy, aspect, near, far){
         var top = near * Math.tan(fovy * Math.PI / 360);
         var right = top * aspect;
@@ -157,7 +158,7 @@ function mat() {
         0, 0, -(far+near)/(far-near), -2*far*near/(far-near),
         0, 0, -1, 0
         ];
-    };
+    }
 
     this.transpose = function(mat){
         var dest = [];
@@ -166,59 +167,5 @@ function mat() {
         dest[8] = mat[2]; dest[9]  = mat[6]; dest[10] = mat[10]; dest[11] = mat[14];
         dest[12] = mat[3]; dest[13] = mat[7]; dest[14] = mat[11]; dest[15] = mat[15];
         return dest;
-    };
-
-    this.det3 = function(mat){
-        var m_00 = mat[0], m_01 = mat[1], m_02 = mat[2],
-            m_10 = mat[3], m_11 = mat[4], m_12 = mat[5],
-            m_20 = mat[6], m_21 = mat[7], m_22 = mat[8],
-            a_012 = m_00*m_11*m_22,
-            a_021 = m_00*m_12*m_21,
-            a_102 = m_01*m_10*m_22,
-            a_120 = m_01*m_12*m_20,
-            a_201 = m_02*m_10*m_21,
-            a_210 = m_02*m_11*m_20;
-
-        console.log("det 3");
-        console.log(a_012-a_021-a_102+a_120+a_201-a_210);
-        return a_012-a_021-a_102+a_120+a_201-a_210;
-    };
-
-    this.inverse = function(mat){
-        var dest=[];
-        var det = 0;
-        var m_00 = mat[0], m_01 = mat[1], m_02 = mat[2], m_03 = mat[3],
-            m_10 = mat[4], m_11 = mat[5], m_12 = mat[6], m_13 = mat[7],
-            m_20 = mat[8], m_21 = mat[9], m_22 = mat[10], m_23 = mat[11],
-            m_30 = mat[12], m_31 = mat[13], m_32 = mat[14], m_33 = mat[15],
-
-            det = (m_00*m_11 - m_01*m_10)*(m_22*m_33 - m_23*m_33);
-            det += (-m_00*m_12 + m_02*m_10)*(m_21*m_33 - m_23*m_31);
-            det += (m_00*m_13 - m_03*m_10)*(m_21*m_32 - m_22*m_31);
-            det += (m_01*m_12 - m_02*m_11)*(m_20*m_33 - m_23*m_30);
-            det += (-m_01*m_13 + m_03*m_11)*(m_20*m_32 - m_21*m_32);
-            det += (m_02*m_13 - m_03*m_12)*(m_20*m_32 - m_22*m_30);
-
-            console.log("det");
-            console.log(det);
-
-            inv_det = 1 / det;
-        dest[0] = this.det3([m_11, m_12, m_13, m_21, m_22, m_23, m_31, m_32, m_33]) * inv_det;
-        dest[1] = this.det3([m_10, m_12, m_13, m_20, m_22, m_23, m_30, m_32, m_33]) * inv_det;
-        dest[2] = this.det3([m_10, m_11, m_13, m_20, m_21, m_23, m_31, m_32, m_33]) * inv_det;
-        dest[3] = this.det3([m_10, m_11, m_12, m_20, m_21, m_22, m_30, m_31, m_32]) * inv_det;
-        dest[4] = this.det3([m_01, m_02, m_03, m_21, m_22, m_23, m_31, m_32, m_33]) * inv_det;
-        dest[5] = this.det3([m_00, m_02, m_03, m_20, m_22, m_23, m_30, m_32, m_33]) * inv_det;
-        dest[6] = this.det3([m_00, m_01, m_03, m_20, m_22, m_23, m_30, m_31, m_33]) * inv_det;
-        dest[7] = this.det3([m_00, m_01, m_02, m_20, m_21, m_22, m_30, m_31, m_32]) * inv_det;
-        dest[8] = this.det3([m_01, m_02, m_03, m_11, m_12, m_13, m_31, m_32, m_33]) * inv_det;
-        dest[9] = this.det3([m_00, m_02, m_03, m_10, m_12, m_13, m_30, m_32, m_33]) * inv_det;
-        dest[10] = this.det3([m_00, m_01, m_03, m_10, m_11, m_13, m_30, m_31, m_33]) * inv_det;
-        dest[11] = this.det3([m_00, m_01, m_02, m_10, m_11, m_12, m_30, m_31, m_32]) * inv_det;
-        dest[12] = this.det3([m_01, m_02, m_03, m_11, m_12, m_13, m_21 ,m_22, m_23]) * inv_det;
-        dest[13] = this.det3([m_00, m_02, m_03, m_10, m_12, m_13, m_20, m_22, m_23]) * inv_det;
-        dest[14] = this.det3([m_00, m_01, m_03, m_10, m_11, m_13, m_20, m_21, m_23]) * inv_det;
-        dest[15] = this.det3([m_00, m_01, m_02, m_10, m_11, m_12, m_20, m_21, m_22]) * inv_det;
-        return dest;
-    };
+    }
 };
