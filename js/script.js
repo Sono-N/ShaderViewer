@@ -1,92 +1,44 @@
-
-
 onload = function(){
-    /* get canvas and set size*/
+    main();
+}
+function main(){
+    /* get canvas*/
     var canv = document.getElementById('canvas');
-    canv.width = 800;
-    canv.height = 800;
-
     /* get WebGL context*/
     var gl = canv.getContext('webgl');
-
     /*setting canvas*/
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    
-    /* clear canvas*/
-    gl.clearColor(0.0,0.0,0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    /* adjust WebGL view size according to canvas size*/
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     /*create two shaders*/
     var v_shader = create_shader(gl, 'vshader');
     var f_shader = create_shader(gl, 'fshader');
-
     /*create program*/
     var program = create_program(gl, v_shader, f_shader);
-
     /* attribute Location setting*/
     var attLocation = [];
     attLocation[0] = gl.getAttribLocation(program, 'position');
     attLocation[1] = gl.getAttribLocation(program, 'color');
     attLocation[2] = gl.getAttribLocation(program, 'normal');
-
-    /*Eye*/
-    var eyeDirection = [0.0, 0.0, 20.0];
-
-    /*Loght*/
-    var lightDirection = [0.5, 1.0, -0.8];
-    var ambientColor = [0.1, 0.1, 0.1, 1.0];
-
     /* attSize (num of element for a vertex)*/
     var attSize = [];
-    attSize[0] = 3;
-    attSize[1] = 4;
-    attSize[2] = 3;
-
+    attSize[0] = 3;//position(x,y,x)
+    attSize[1] = 4;//color(r,g,b,a)
+    attSize[2] = 3;//(x,y,z)
     /*sphere*/
     var sphereData = sphere(64, 64, 2.0, [0.25, 0.25, 0.75, 1.0]);
     var position = sphereData.p;
     var normal = sphereData.n;
     var color = sphereData.c;
-
     var index = sphereData.i;
-
     /* create vbo*/
     var vbo = new Array();
     vbo[0] = gl.createBuffer();
     vbo[1] = gl.createBuffer();
     vbo[2] = gl.createBuffer();
 
-    set_vbo(gl, vbo[0], position, attLocation[0], attSize[0]);
-    set_vbo(gl, vbo[1], color, attLocation[1], attSize[1]);
-    set_vbo(gl, vbo[2], normal, attLocation[2], attSize[2]);
-
-    /* bind Buffer and set color*/
     var ibo =  gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(index), gl.STATIC_DRAW);
-
-    /* model view projection mat*/
-    var m = new mat();
-    var v_mat = m.lookat([0.0, 1.0, 10], [0, 0, 0], [0, 1, 0]);
-    //var v_mat = m.elementary();
-    var p_mat = m.perspective(90, canv.width/canv.height, 0.1, 100);
-    //var p_mat = m.elementary();
-    var pv_mat = m.multiply(p_mat, v_mat);
-
-    /*m_mat */
-    var m_mat = m.rotatex(70);
-
-    var mvp =m.multiply(pv_mat, m_mat);
-    mvp = m.transpose(mvp);
-
-    var inv = m.inverse(m_mat);
-    console.log("inv");
-    console.log(inv);
 
     /* uniform Location setting*/
     var uniLocation = new Array();
@@ -96,17 +48,72 @@ onload = function(){
     uniLocation[3] = gl.getUniformLocation(program, 'eyeDirection');
     uniLocation[4] = gl.getUniformLocation(program, 'ambientColor');
 
-    /* draw*/
-    gl.uniformMatrix4fv(uniLocation[0], false, mvp);
-    gl.uniformMatrix4fv(uniLocation[1], false, inv);
-    gl.uniform3fv(uniLocation[2], lightDirection);
-    gl.uniform3fv(uniLocation[3], eyeDirection);
-    gl.uniform4fv(uniLocation[4], ambientColor);
-    //gl.drawArrays(gl.TRIANGLES, 0, 3); //draw vertices
+    set_vbo(gl, vbo[0], position, attLocation[0], attSize[0]);
+    set_vbo(gl, vbo[1], color, attLocation[1], attSize[1]);
+    set_vbo(gl, vbo[2], normal, attLocation[2], attSize[2]);
 
-    gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(index), gl.STATIC_DRAW);
 
-    gl.flush();
+    /*Eye*/
+    var eyeDirection = [0.0, 0.0, 1.0];
+    /*Loght*/
+    var ambientColor = [0.1, 0.1, 0.1, 1.0];
+    var lightDirection = [1, 1, 1];
+
+    var $lightDirectionX = $('#light-direction-x')
+    $lightDirectionX.on('input', function(event) {
+        lightDirection[0] = $lightDirectionX.val();
+        drawScene();
+    });
+    var $lightDirectionY = $('#light-direction-y')
+    $lightDirectionY.on('input', function(event) {
+        lightDirection[1] = $lightDirectionY.val();
+        drawScene();
+    });
+    var $lightDirectionZ = $('#light-direction-z')
+    $lightDirectionZ.on('input', function(event) {
+        lightDirection[2] = $lightDirectionZ.val();
+        drawScene();
+    });
+
+    drawScene();
+
+
+    function drawScene(){
+        /* clear canvas*/
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+        /* adjust WebGL view size according to canvas size*/
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+        /*model view projection mat*/
+        var m = new mat();
+        var m_mat = m.rotatex(70);
+        var v_mat = m.lookat([0.0, 0, 5], [0, 0, 0], [0, 1, 0]);
+        var p_mat = m.perspective(90, canv.width/canv.height, 0.1, 100);
+        var pv_mat = m.multiply(p_mat, v_mat);
+
+        var mvp = m.multiply(pv_mat, m_mat);
+        mvp = m.transpose(mvp);
+
+        var inv = m.inverse(m_mat);
+        inv = m.transpose(inv);
+
+        /* set uniform*/
+        gl.uniformMatrix4fv(uniLocation[0], false, mvp);
+        gl.uniformMatrix4fv(uniLocation[1], false, inv);
+        gl.uniform3fv(uniLocation[2], lightDirection);
+        gl.uniform3fv(uniLocation[3], eyeDirection);
+        gl.uniform4fv(uniLocation[4], ambientColor);
+
+        console.log(m.inverse([1,2,0,0,0,1,0,0,0,0,1,0,0,0,0,1]));
+
+        /*draw*/
+        gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+
+        gl.flush();
+    }
 }
 
 function sphere(row, column, rad, color){
@@ -140,6 +147,9 @@ function sphere(row, column, rad, color){
     return {p : pos, n : nor, c : col, i : idx};
 }
 
+function change_right(x,y,z){
+
+}
 
 function set_vbo(gl, vbo, vertices, attLocation, attSize){
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -178,7 +188,7 @@ function create_program(gl, vs, fs){
     
     gl.attachShader(program, vs);
     gl.attachShader(program, fs);
-    
+
     gl.linkProgram(program);
     
     if(gl.getProgramParameter(program, gl.LINK_STATUS)){
