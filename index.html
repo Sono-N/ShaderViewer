@@ -2,95 +2,144 @@
 <html>
   <head>
     <title>WebGL</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>    
     <script src="js/script.js" type="text/javascript"></script>
     <script src="js/myMatrix.js" type="text/javascript"></script>
-    <script id="vshader" type="shader">
-      attribute vec3 position;
-      attribute vec3 normal;
-      attribute vec4 color;
+    <script id="vshader_vars" type="shader">
 
-      uniform mat4 mvpMatrix;
-      uniform mat4 invMatrix;
-      uniform vec3 lightDirection;
-      uniform vec3 eyeDirection;
-      uniform vec4 ambientColor;
-
-      varying   vec4 vColor;
-
-      void main(void){
-        vec3 invLight = normalize(invMatrix * vec4(lightDirection, 0.0)).xyz;
-        vec3 invEye = normalize(invMatrix * vec4(eyeDirection, 0.0)).xyz;
-        vec3 halfLE = normalize(invLight + invEye);
-        float diffuse = clamp(dot(normal, invLight), 0.0, 1.0);
-        float specular = pow(clamp(dot(normal, halfLE), 0.0, 1.0), 50.0);
-        vColor = color * vec4(vec3(diffuse), 1.0) + vec4(vec3(specular), 1.0)+ ambientColor;
-        gl_Position = mvpMatrix * vec4(position, 1.0);
-      }
     </script>
-    <script id="fshader" type="shader">
+    <script id="fshader_vars" type="shader">
       precision mediump float;
-
-      varying vec4 vColor;
-      void main(void){
-        gl_FragColor = vColor;
-      }
     </script>
   </head>
   <body>
-    <canvas id="canvas" width="500" height="250"></canvas>
-    <div id = "ui">
-    </div>
-
-    <form >
-      Light Direction
-      <input type="text" id="light-direction-x" value=1>
-      <input type="text" id="light-direction-y" value=1>
-      <input type="text" id="light-direction-z" value=1>
-    </form>
-    <br/>
-    <textarea name="vshader" cols="90" rows="20" id="vshader_input">
-      /*Vertex*/
-      attribute vec3 position;
-      attribute vec3 normal;
-      attribute vec4 color;
-
-      uniform mat4 mvpMatrix;
-      uniform mat4 invMatrix;
-      uniform vec3 lightDirection;
-      uniform vec3 eyeDirection;
-      uniform vec4 ambientColor;
-
-      varying   vec4 vColor;
-
-      void main(void){
-        vec3 invLight = normalize(invMatrix * vec4(lightDirection, 0.0)).xyz;
-        vec3 invEye = normalize(invMatrix * vec4(eyeDirection, 0.0)).xyz;
-        vec3 halfLE = normalize(invLight + invEye);
-        float diffuse = clamp(dot(normal, invLight), 0.0, 1.0);
-        float specular = pow(clamp(dot(normal, halfLE), 0.0, 1.0), 50.0);
-        vColor = color * vec4(vec3(diffuse), 1.0) + vec4(vec3(specular), 1.0)+ ambientColor;
-        gl_Position = mvpMatrix * vec4(position, 1.0);
-      }
-      </textarea>
-      <textarea name="fshader" cols="90" rows="20" id="fshader_input">
-      /*Fragment*/
-      precision mediump float;
-      varying vec4 vColor;
-      void main(void){
-        gl_FragColor = vColor;
-      }
-      </textarea>
+    <h1>Shader Viewer</h1>
+    <div class ="right">
+      <h2>VIEW</h2>
+      <input type="button" value="set" onclick="main(now_obj,1)">
       <br/>
-      <input type="button" value="set" onClick="kakunin()">
-    </form>
-    <script>
-      function kakunin(){
-        ret = confirm("Yahoo!Japanへ飛びます。宜しいですか？");
-        if (ret == true){
-          location.href = "http://www.yahoo.co.jp/";
-        }
-      }
-    </script>
+      <canvas id="canvas" width="500" height="250"></canvas>
+      <h2>CONSOLE</h2>
+        <textarea name="fshader" cols="100" rows="5" id="console">
+        </textarea>
+      <h2>SHADERS</h2>
+        <input type="button" onclick="changeShader('primitive')" value="primitive">
+        <input type="button" onclick="changeShader('textured')" value="textured">
+        <input type="button" onclick="changeShader('translucent')" value="translucent">
+        <input type="button" onclick="changeShader('filtering')" value="filtering">
+    </div>
+    <div class="left">
+      <h2>VERTEX & FRAGMENT</h2>
+      <form>
+        <h3>attribute position,normal,color</h3>
+        <input type="button" onclick="main('sphere', 1)" value="sphere">
+        <input type="button" onclick="main('cube', 1)" value="cube">
+        <input type="button" onclick="main('plane',1)" value="plane">  
+        R<input type="number" id="color-r" value=255 min=0 max="255">
+        G<input type="number" id="color-g" value=255 min=0 max="255">
+        B<input type="number" id="color-b" value=255 min=0 max="255">
+      </form>
+      <form>
+        <h3>uniform mvpMatrix & invMatrix</h3>
+        rotate X<input type="range" id="rotate-x" value=0>
+        rotate Y<input type="range" id="rotate-y" value=0>
+        rotate Z<input type="range" id="rotate-z" value=0>
+        <br/>
+        scale X<input type="number" id="scale-x" value=1 min=-10 max="10">
+        scale Y<input type="number" id="scale-y" value=1 min=-10 max="10">
+        scale Z<input type="number" id="scale-z" value=1 min=-10 max="10">
+        <br/>cameraPosition
+        <input type="number" id="camera-position-x" value=0 min=-10 max="10">
+        <input type="number" id="camera-position-y" value=0 min=-10 max="10" >
+        <input type="number" id="camera-position-z" value=5 min=-10 max="10">
+        <br/>LookAt
+        <input type="text" id="look-at-x" value=0>
+        <input type="text" id="look-at-y" value=0>
+        <input type="text" id="look-at-z" value=0>
+      </form>
+      <form>
+        <h3>uniform lightDirection</h3>
+        <input type="text" id="light-direction-x" value=1>
+        <input type="text" id="light-direction-y" value=1>
+        <input type="text" id="light-direction-z" value=1>
+      </form>
+      <form>
+        <h3>uniform eyeDirection</h3>
+        <input readonly type="text" id="eye-direction-x" value=0>
+        <input readonly type="text" id="eye-direction-y" value=0>
+        <input readonly type="text" id="eye-direction-z" value=1>
+      </form>
+      <form>
+        <h3>uniform cubeTexture</h3>
+        <input type="button" onclick="change_env('red')" value="red">
+        <input type="button" onclick="change_env('sky')" value="sky">
+        <input type="button" onclick="change_env('checker_board')" value="checker_board">
+      </form>
+      <br/>
+      <div id = "vshader_are">
+        <textarea name="vshader" cols="90" rows="10" id="vshader">
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec4 color;
+attribute vec2 texture_coordinates;
+      
+uniform mat4 mvpMatrix;
+uniform mat4 invMatrix;
+uniform vec3 lightDirection;
+uniform vec3 eyeDirection;
+uniform bool back;
+
+varying vec4 vColor;
+varying vec3 vNormal;
+varying vec2 vTextureCoordinates;
+
+void main(void){
+  if(!back){
+    float alpha = 1.0;
+    vec4 ambientLight = vec4(0.1, 0.1, 0.1, alpha/3.0);
+
+    vec3 invLight = normalize(invMatrix * vec4(lightDirection, 0.0)).xyz;
+    vec3 invEye = normalize(invMatrix * vec4(eyeDirection, 0.0)).xyz;
+    vec3 halfLE = normalize(invLight + invEye);
+    float diffuse = clamp(dot(normal, invLight), 0.0, 1.0);
+    float specular = pow(clamp(dot(normal, halfLE), 0.0, 1.0), 50.0);
+    vColor = color * vec4(vec3(diffuse), alpha/3.0) + vec4(vec3(specular), alpha/3.0)+ ambientLight;
+    vTextureCoordinates = texture_coordinates;
+    gl_Position = mvpMatrix * vec4(position, 1.0);
+  }else{
+    vColor = color;
+    vNormal = normal;
+    vTextureCoordinates = texture_coordinates;
+    gl_Position = mvpMatrix * vec4(position, 1.0);
+  }
+}
+          </textarea>
+        </div>
+        <div id = "fshader_are">
+          <textarea name="fshader" cols="90" rows="10" id="fshader">
+uniform bool back;
+uniform sampler2D texture1;
+uniform sampler2D texture2;
+uniform sampler2D texture3;
+uniform samplerCube cubeTexture;
+varying vec4 vColor;
+varying vec3 vNormal;
+varying vec2 vTextureCoordinates;
+
+void main(void){
+  if(!back){
+    vec4 smpColor = texture2D(texture1, vTextureCoordinates);
+    vec4 textureColor = vColor*smpColor;
+    gl_FragColor = vColor;
+  }else{
+    vec4 backColor = textureCube(cubeTexture, vNormal);
+    gl_FragColor = backColor;
+  }
+}
+          </textarea>
+        </div>
+      </form>
+    </div>
   </body>
 </html>

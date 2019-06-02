@@ -1,0 +1,19 @@
+uniform bool back;
+uniform sampler2D texture; 
+
+void main(void){
+    vec2 tFrag = vec2(1.0 / 256.0);
+    mat3 filter = mat3(0.0,0.0,0.0,1.0,-1.0,1.0,0.0,0.0,0.0);
+    vec4 destColor = texture2D(texture, -gl_FragCoord.st * tFrag);
+    destColor.xyz *= filter[1][1];
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(-1.0, -1.0)) * tFrag) * filter[0][0]).xyz;
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(0.0, -1.0)) * tFrag) * filter[0][1]).xyz;
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(1.0, -1.0)) * tFrag) * filter[0][2]).xyz;
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(-1.0, 0.0)) * tFrag) * filter[1][0]).xyz;
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(1.0, 0.0)) * tFrag) * filter[1][2]).xyz;
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(-1.0, 1.0)) * tFrag) * filter[2][1]).xyz;
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(0.0, 1.0)) * tFrag) * filter[2][2]).xyz;
+    destColor.xyz += (texture2D(texture, (-gl_FragCoord.st + vec2(1.0, 1.0)) * tFrag) * filter[2][0]).xyz;
+    gl_FragColor = destColor;
+}
+      

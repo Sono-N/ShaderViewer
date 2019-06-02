@@ -1,0 +1,14 @@
+uniform bool back;
+uniform samplerCube cubeTexture;
+varying vec4 vColor;
+varying vec3 vNormal;
+
+void main(void){
+  if(!back){
+    gl_FragColor = vColor;
+  }else{
+    vec4 backColor = textureCube(cubeTexture, vNormal);
+    gl_FragColor = backColor;
+  }
+}
+      

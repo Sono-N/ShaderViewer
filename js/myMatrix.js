@@ -16,7 +16,7 @@ function mat() {
         0,0,0,1
         ];
     };
-
+    
     this.add = function(m1, m2){
         var dest=[];
         dest[0]=m1[0]+m2[0]; dest[1]=m1[1]+m2[1]; dest[2]= m1[2]+m2[2]; dest[3]=m1[3]+m2[3];
@@ -179,7 +179,6 @@ function mat() {
             a_201 = m_02*m_10*m_21,
             a_210 = m_02*m_11*m_20;
 
-        console.log("det 3");
         console.log(a_012-a_021-a_102+a_120+a_201-a_210);
         return a_012-a_021-a_102+a_120+a_201-a_210;
     };
