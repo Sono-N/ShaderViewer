@@ -88,7 +88,7 @@ function main(obj_name, is_redraw){
     gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
     var depthBuffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 256, 256);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
     var frameTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, frameTexture);
@@ -155,14 +155,20 @@ function main(obj_name, is_redraw){
     uniLocation[7] = gl.getUniformLocation(program, 'back');
     uniLocation[8] = gl.getUniformLocation(program, 'cubeTexture');
     uniLocation[9] = gl.getUniformLocation(program, 'frameTexture');
+    uniLocation[10] = gl.getUniformLocation(program, 'mMatrix');
+    uniLocation[11] = gl.getUniformLocation(program, 'bump1');
+
 
     /*create texture*/
     var img1 = new Image();
     var img2 = new Image();
+    var img_bump1 = new Image();
     img1.src = 'img/img01.jpg';
     img2.src = 'img/img02.jpg';
+    img_bump1.src = 'img/bump1.png';
     var tex1 = gl.createTexture();
     var tex2 = gl.createTexture();
+    var bump1 = gl.createTexture();
 
     /*Loght*/
     //var ambientColor = [0.1, 0.1, 0.1, 1.0];
@@ -209,6 +215,12 @@ function main(obj_name, is_redraw){
         img2.onload = function(){
             gl.bindTexture(gl.TEXTURE_2D, tex2);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img2);
+            gl.generateMipmap(gl.TEXTURE_2D);
+        };
+    }if(img_bump1){
+        img_bump1.onload = function(){
+            gl.bindTexture(gl.TEXTURE_2D, bump1);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img_bump1);
             gl.generateMipmap(gl.TEXTURE_2D);
             drawScene();
         };
@@ -389,6 +401,10 @@ function main(obj_name, is_redraw){
     }
 
     function drawScene(){
+
+        /*bind frame*/
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer.f);
+
         /* clear canvas*/
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -402,6 +418,9 @@ function main(obj_name, is_redraw){
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, tex2);
         gl.uniform1i(uniLocation[6], 1);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, bump1);
+        gl.uniform1i(uniLocation[11], 3);
 
         var mvp = m.multiply(pv_mat, m_mat);
         mvp = m.transpose(mvp);
@@ -424,21 +443,21 @@ function main(obj_name, is_redraw){
         /* set uniform*/
         gl.uniformMatrix4fv(uniLocation[0], false, back_mvp);
         gl.uniformMatrix4fv(uniLocation[1], false, back_inv);
+        gl.uniformMatrix4fv(uniLocation[10], false, back_m_mat);
         gl.uniform1i(uniLocation[7], true);
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, envTexture);
         gl.uniform1i(uniLocation[8], 2);
-
-        console.log("tex1: ",tex1);
-        console.log("envTexture: ",envTexture);
 
         /*Type*/
         gl.drawElements(gl.TRIANGLES, back_index.length, gl.UNSIGNED_SHORT, 0);
         //gl.drawElements(gl.POINTS, back_index.length, gl.UNSIGNED_SHORT, 0);
 
         /* set uniform*/
+        trans_m_mat = m.transpose(m_mat);
         gl.uniformMatrix4fv(uniLocation[0], false, mvp);
         gl.uniformMatrix4fv(uniLocation[1], false, inv);
+        gl.uniformMatrix4fv(uniLocation[10], false, trans_m_mat);
         gl.uniform3fv(uniLocation[2], lightDirection);
         gl.uniform3fv(uniLocation[3], eyeDirection);
         //gl.uniform4fv(uniLocation[4], ambientColor);
@@ -455,6 +474,16 @@ function main(obj_name, is_redraw){
         /*draw*/
         gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
 
+        /*getFrameTexture*/
+        /*
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, frameBuffer.t);
+        gl.uniform1i(uniLocation[9], 3);
+        */
+
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        /*draw*/
         gl.flush();
 
         gl.disableVertexAttribArray(attLocation[0]);
@@ -695,6 +724,7 @@ function set_vbo(gl, vbo, vertices, attLocation, attSize){
 }
 
 function create_shader(gl, id){
+    document.getElementById(id+'_error').value = "";
     var shader;
     //var scriptElement = document.getElementById(id);
     var script_vars = document.getElementById(id+'_vars').text;
@@ -717,6 +747,8 @@ function create_shader(gl, id){
     if(gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
         return shader;
     }else{
+        document.getElementById(id+'_error').value = gl.getShaderInfoLog(shader);
+        //alert(gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
     }
 }

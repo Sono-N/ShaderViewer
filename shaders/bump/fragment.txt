@@ -1,0 +1,26 @@
+uniform bool back;
+uniform sampler2D bump1;
+uniform samplerCube cubeTexture;
+varying vec4 vColor;
+varying vec3 vNormal;
+varying vec2 vTextureCoordinates;
+varying vec3 vView;
+varying vec3 vLight;
+
+void main(void){
+  if(!back){
+    vec3 f_normal = (texture2D(bump1, vTextureCoordinates) * 2.0 - 1.0).rgb;
+    vec3 f_light = normalize(vLight);
+    vec3 f_eye = normalize(vView);
+    vec3 halfLE = normalize(f_light + f_eye);
+    float diffuse = clamp(dot(f_normal, f_light), 0.0, 1.0);
+    float specular = pow(clamp(dot(f_normal, halfLE), 0.0, 1.0), 50.0);
+    vec4 ambientLight = vec4(0.1, 0.1, 0.1, 1.0);
+    vec4 textureColor = texture2D(bump1, vTextureCoordinates);
+    vec4  destColor = vColor * (vec4(vec3(diffuse), 1.0) + vec4(vec3(specular), 1.0)) + ambientLight;
+    gl_FragColor = destColor;
+  }else{
+    vec4 backColor = textureCube(cubeTexture, vNormal);
+    gl_FragColor = backColor;
+  }
+}

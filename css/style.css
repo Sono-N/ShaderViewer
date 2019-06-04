@@ -18,3 +18,7 @@ h3 {
     right:0;
     width: 50%;
 }
+
+.texture::before{
+    content: '****'; 
+}

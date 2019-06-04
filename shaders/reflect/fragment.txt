@@ -1,0 +1,19 @@
+uniform bool back;
+uniform samplerCube cubeTexture;
+varying vec4 vColor;
+varying vec4 vShade;
+varying vec3 vNormal;
+varying vec3 vPosition;
+varying vec3 vEye;
+
+void main(void){
+  if(!back){
+    vec3 reflection = reflect(vPosition - vEye, vNormal);
+    vec4 ambientLight = vec4(0.1, 0.1, 0.1, 1.0);
+    vec4 envColor = textureCube(cubeTexture, reflection);
+    gl_FragColor = (vColor*vShade + envColor)/2.0;
+  }else{
+    vec4 backColor = textureCube(cubeTexture, vNormal);
+    gl_FragColor = backColor;
+  }
+}

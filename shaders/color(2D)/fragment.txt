@@ -1,0 +1,8 @@
+uniform bool back;
+uniform vec2  resolution;
+
+void main(void){
+	vec2 p = gl_FragCoord.xy/256.0;
+	vec2 color = (vec2(0.0) + p.xy);
+	gl_FragColor = vec4(color, 0.0, 1.0);
+}
