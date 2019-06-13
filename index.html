@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebGL</title>
+    <title>tryShaders</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" href="css/jquery-linedtextarea.css">
     <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
@@ -16,7 +16,7 @@
     </script>
   </head>
   <body>
-    <h1>Shader Viewer -ver1.0</h1>
+    <h1>tryShaders -dev</h1>
     <div class ="right">
       <h2>VIEW</h2>
       <canvas id="canvas" width="256" height="256"></canvas>
@@ -28,9 +28,10 @@
         <input type="button" onclick="changeShader('bump')" value="bump">
         <br/>
         <input type="button" onclick="changeShader('reflect')" value="reflect">
+        <input type="button" onclick="changeShader('stripe')" value="stripe">
         <br/>
         <input type="button" onclick="changeShader('filtering(2D)')" value="filtering(2D)">
-        <input type="button" onclick="changeShader('color(2D)')" value="color(2D)">
+        <input type="button" onclick="changeShader('rainbow(2D)')" value="rainbow(2D)">
       <h2>ERROR</h2>
         <textarea name="vshader_error" cols="100" rows="4" id="vshader_error"></textarea>
         <textarea name="fshader_error" cols="100" rows="4" id="fshader_error"></textarea>

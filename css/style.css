@@ -1,12 +1,14 @@
 body{
     font-size: 10px;
 }
+
 h3 {
     font-size: 12px;
     background-color: #bbbbbb;
 }
 
 .left{
+    /*margin-top: 50px;*/
     width: 50%;
     float: left;
     margin-right: -100px;
@@ -14,6 +16,7 @@ h3 {
     box-sizing: border-box;
 }
 .right{
+    /*margin-top: 50px;*/
     position: fixed;
     right:0;
     width: 50%;

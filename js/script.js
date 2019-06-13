@@ -99,7 +99,7 @@ function main(obj_name, is_redraw){
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     /*back obj*/
-    var backObj = cube(100.0, new Array(1.0, 1.0, 1.0));
+    var backObj = simple_cube(100.0, new Array(1.0, 1.0, 1.0));
     //var backObj = sphere(64, 64, 2.0, 0);
     var back_position = backObj.p;
     var back_normal = list_inverse(backObj.n);
@@ -127,7 +127,7 @@ function main(obj_name, is_redraw){
     }else if(obj_name == 'cube'){
         objData = cube(3.0, new Array(r, g, b));
     }else if(obj_name == 'plane'){
-        objData = plane(4.0, new Array(r, g, b));
+        objData = plane(3.5, new Array(r, g, b));
     }
     var position = objData.p;
     var normal = objData.n;
@@ -313,23 +313,6 @@ function main(obj_name, is_redraw){
             pv_mat = m.multiply(p_mat, v_mat);
             drawScene();
         });
-        /*
-        var $ambientColorR = $('#ambient-color-r')
-            $ambientColorR.on('input', function(event) {
-            ambientColor[0] = $ambientColorR.val()/255;
-            drawScene();
-        });
-        var $ambientColorG = $('#ambient-color-g')
-            $ambientColorG.on('input', function(event) {
-            ambientColor[1] = $ambientColorG.val()/255;
-            drawScene();
-        });
-        var $ambientColorB = $('#ambient-color-b')
-            $ambientColorB.on('input', function(event) {
-            ambientColor[2] = $ambientColorB.val()/255;
-            drawScene();
-        });
-        */
 
         var $eyeDirectionX = $('#eye-direction-x')
         $eyeDirectionX.on('input', function(event) {
@@ -573,15 +556,6 @@ function sphere(row, coll, rad, color){
             var a_ry = Math.abs(ry);
             var a_rz = Math.abs(rz);
             col.push(color[0],color[1],color[2], 1.0);
-            /*
-            switch(color_code){
-                case 0:
-                    col.push(0.5, 0.5, 0.5, 1.0);
-                    break;
-                case 1:
-                    col.push(a_rx/(a_rx+a_ry+a_rz), a_ry/(a_rx+a_ry+a_rz), a_rz/(a_rx+a_ry+a_rz), 1.0);
-                    break;
-            }*/
             tex.push(1-1/coll*j ,1/row*i);
         }
 
@@ -597,58 +571,146 @@ function sphere(row, coll, rad, color){
     return {p : pos, n : nor, c : col, t : tex, i : idx};
 }
 
+
+function simple_cube(length, color){
+    var pos = new Array(), nor = new Array(),
+        col = new Array(), tex = new Array(),
+        idx = new Array();
+    var s = length/2;
+    pos = new Array(
+        s,s,s, s,s,-s, -s,s,-s, -s,s,s,
+        s,s,s, s,-s,s, s,-s,-s, s,s,-s, 
+        s,s,-s, s,-s,-s, -s,-s,-s, -s,s,-s,
+        -s,s,-s, -s,-s,-s, -s,-s,s, -s,s,s,
+        -s,s,s, -s,-s,s, s,-s,s, s,s,s,
+        s,-s,s, -s,-s,s, -s,-s,-s, s,-s,-s);
+    nor = new Array(
+        1,1,1, 1,1,-1, -1,1,-1, -1,1,1,
+        1,1,1, 1,-1,1, 1,-1,-1, 1,1,-1, 
+        1,1,-1, 1,-1,-1, -1,-1,-1, -1,1,-1,
+        -1,1,-1, -1,-1,-1, -1,-1,1, -1,1,1,
+        -1,1,1, -1,-1,1, 1,-1,1, 1,1,1,
+        1,-1,1, -1,-1,1, -1,-1,-1, 1,-1,-1);
+    for(var i=0; i<24; i++){
+        col.push(color[0], color[1], color[2], 1.0);
+    }
+    tex = new Array(
+        0,0, 0,1, 1,1, 1,0,
+        0,0, 0,1, 1,1, 1,0,
+        0,0, 0,1, 1,1, 1,0,
+        0,0, 0,1, 1,1, 1,0,
+        0,0, 0,1, 1,1, 1,0,
+        0,0, 0,1, 1,1, 1,0);
+    idx = new Array(
+        0,1,2, 0,2,3,
+        4,5,6, 4,6,7,
+        8,9,10, 8,10,11,
+        12,13,14, 12,14,15,
+        16,17,18, 16,18,19,
+        20,21,22, 20,22,23);
+    return {p : pos, n : nor, c : col, t : tex, i : idx};
+}
+
 function cube(length, color){
     var pos = new Array(), nor = new Array(),
         col = new Array(), tex = new Array(),
         idx = new Array();
-        var s = length/2;
-        pos = new Array(
-            s,s,s, s,s,-s, -s,s,-s, -s,s,s,
-            s,s,s, s,-s,s, s,-s,-s, s,s,-s, 
-            s,s,-s, s,-s,-s, -s,-s,-s, -s,s,-s,
-            -s,s,-s, -s,-s,-s, -s,-s,s, -s,s,s,
-            -s,s,s, -s,-s,s, s,-s,s, s,s,s,
-            s,-s,s, -s,-s,s, -s,-s,-s, s,-s,-s);
-        nor = new Array(
-            1,1,1, 1,1,-1, -1,1,-1, -1,1,1,
-            1,1,1, 1,-1,1, 1,-1,-1, 1,1,-1, 
-            1,1,-1, 1,-1,-1, -1,-1,-1, -1,1,-1,
-            -1,1,-1, -1,-1,-1, -1,-1,1, -1,1,1,
-            -1,1,1, -1,-1,1, 1,-1,1, 1,1,1,
-            1,-1,1, -1,-1,1, -1,-1,-1, 1,-1,-1);
-        for(var i=0; i<24; i++){
-            col.push(color[0], color[1], color[2], 1.0);
+        div = 5;
+        var len = length/2;
+        var s = length/div;
+        var tex_s = 1.0/div;
+        var nor_s = 1.0/div;
+        var nor_temp = new Array();
+        for(var i=0; i<=div; i++){
+            nor_temp[0] = 1;
+            nor_temp[1] = 1-nor_s*i*2.0;
+
+            for(var j=0; j<=div; j++){
+                pos.push(len,len-s*i,len-s*j);
+                nor_temp[2] =1-nor_s*j*2.0;
+
+                nor.push(nor_temp[0] ,nor_temp[1], nor_temp[2]);
+                col.push(color[0], color[1], color[2], 1.0);
+                tex.push(-1+tex_s*i,-1+tex_s*j);
+            }
         }
-        /*
-        switch(color_code){
-            case 0:
-                for(var i=0; i<24; i++){
-                    col.push(0.5,0.5,0.5,1.0);
+        for(var i=0; i<=div; i++){
+            nor_temp[0] = -1;
+            nor_temp[1] = 1-nor_s*i*2.0;
+
+            for(var j=0; j<= div; j++){
+                pos.push(-len,len-s*i,-len+s*j);
+                nor_temp[2] = nor_s*j*2.0-1;
+
+                nor.push(nor_temp[0] ,nor_temp[1], nor_temp[2]);
+                col.push(color[0], color[1], color[2], 1.0);
+                tex.push(-1+tex_s*i,1-tex_s*j);
+            }
+        }
+        for(var i=0; i<=div; i++){
+            nor_temp[1] = 1;
+            nor_temp[2] = nor_s*i*2.0-1;
+
+            for(var j=0; j<= div; j++){
+                pos.push(-len+s*j,len,-len+s*i);
+                nor_temp[0] = nor_s*j*2.0-1;
+
+                nor.push(nor_temp[0] ,nor_temp[1], nor_temp[2]);
+                col.push(color[0], color[1], color[2], 1.0);
+                tex.push(1-tex_s*j,-1+tex_s*i);
+            }
+        }
+        for(var i=0; i<= div; i++){
+            nor_temp[1] = -1;
+            nor_temp[2] = nor_s*i*2.0-1;
+
+            for(var j=0; j<= div; j++){
+                pos.push(len-s*j,-len,-len+s*i);
+                nor_temp[0] = 1-nor_s*j*2.0;
+
+                nor.push(nor_temp[0] ,nor_temp[1], nor_temp[2]);
+                col.push(color[0], color[1], color[2], 1.0);
+                tex.push(-1+tex_s*j,1-tex_s*i);
+            }
+        }
+        for(var i=0; i <= div; i++){
+            nor_temp[2] = 1;
+            nor_temp[1] = 1-nor_s*i*2.0;
+
+            for(var j=0; j <= div; j++){
+                pos.push(-len+s*j, len-s*i, len);
+                nor_temp[0] = nor_s*j*2.0-1;
+
+                nor.push(nor_temp[0] ,nor_temp[1], nor_temp[2]);
+                col.push(color[0], color[1], color[2], 1.0);
+                tex.push(1-tex_s*j,-1+tex_s*i);
+            }
+        }    
+        for(var i=0; i<= div; i++){
+            nor_temp[2] = -1;
+            nor_temp[1] = 1-nor_s*i*2.0;
+
+            for(var j=0; j<= div; j++){
+                pos.push(len-s*j, len-s*i, -len);
+                nor_temp[0] = 1-nor_s*j*2.0;
+
+                nor.push(nor_temp[0] ,nor_temp[1], nor_temp[2]);
+                col.push(color[0], color[1], color[2], 1.0);
+                tex.push(-1+tex_s*j,-1+tex_s*i);
+            }
+        }
+        
+        var div_pow2 = (div+1)*(div+1);
+        for(var i=0; i<6; i++){
+            var face = div_pow2*i;
+            for(var k=0; k<div; k++){
+                var low = k*(div+1);
+                for(var l=0; l<div; l++){
+                    var id =face +low +l;
+                    idx.push(id, id+div+1, id+div+2, id, id+div+2, id+1);
                 }
-                break;
-            case 1:
-                for(var i=0; i<24; i++){
-                    var a_rx = Math.abs(nor[i*3]);
-                    var a_ry = Math.abs(nor[i*3+1]);
-                    var a_rz = Math.abs(nor[i*3+2]);
-                    col.push(a_rx/(a_rx+a_ry+a_rz), a_ry/(a_rx+a_ry+a_rz), a_rz/(a_rx+a_ry+a_rz),1.0);
-                }
-                break;
-        }*/
-        tex = new Array(
-            0,0, 0,1, 1,1, 1,0,
-            0,0, 0,1, 1,1, 1,0,
-            0,0, 0,1, 1,1, 1,0,
-            0,0, 0,1, 1,1, 1,0,
-            0,0, 0,1, 1,1, 1,0,
-            0,0, 0,1, 1,1, 1,0);
-        idx = new Array(
-            0,1,2, 0,2,3,
-            4,5,6, 4,6,7,
-            8,9,10, 8,10,11,
-            12,13,14, 12,14,15,
-            16,17,18, 16,18,19,
-            20,21,22, 20,22,23);
+            }
+        }
     return {p : pos, n : nor, c : col, t : tex, i : idx};
 }
 
@@ -673,46 +735,35 @@ function list_inverse(list, size){
 
 
 function plane(width, color){
-    var pos = new Array(), nor = new Array(),
+     var pos = new Array(), nor = new Array(),
         col = new Array(), tex = new Array(),
         idx = new Array();
-        var s = width/2;
-        pos = new Array(
-            -s, s, 0,
-            s, s, 0,
-            -s, -s, 0,
-            s, -s, 0);
-        nor = new Array(
-            -1, 1, 0,
-            1, 1, 0,
-            -1, -1, 0,
-            1, -1, 0);
-        for(var i=0; i<4; i++){
-            col.push(color[0], color[1], color[2],1.0);
+        div = 10;
+        var len = width/2;
+        var s = width/div;
+        var tex_s = 1.0/div;
+        var nor_s = 1.0/div;
+        var nor_temp = new Array();
+        for(var i=0; i <= div; i++){
+            nor_temp[2] = 1;
+            nor_temp[1] = 1-nor_s*i*2.0;
+
+            for(var j=0; j <= div; j++){
+                pos.push(-len+s*j, len-s*i, len);
+                nor_temp[0] = nor_s*j*2.0-1;
+
+                nor.push(nor_temp[0] ,nor_temp[1], nor_temp[2]);
+                col.push(color[0], color[1], color[2], 1.0);
+                tex.push(1-tex_s*j,-1+tex_s*i);
+            }
+        } 
+        for(var k=0; k<div; k++){
+            var low = k*(div+1);
+            for(var l=0; l<div; l++){
+                var id =low +l;
+                idx.push(id, id+div+1, id+div+2, id, id+div+2, id+1);
+            }
         }
-        /*
-        switch(color_code){
-            case 0:
-                for(var i=0; i<4; i++){
-                    col.push(0.5,0.5,0.0,1.0);
-                }
-                break;
-            case 1:
-                col = new Array(
-                    0,1,0,1,
-                    0.3,1,0,1,
-                    0.6,1,0,1,
-                    1,1,0,1);
-                break;
-        }*/
-        tex = new Array(
-            0,0,
-            1,0,
-            0,1,
-            1,1);
-        idx = new Array(
-            2,1,0,
-            1,2,3);
     return {p : pos, n : nor, c : col, t : tex, i : idx};
 }
 
