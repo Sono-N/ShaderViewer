@@ -13,7 +13,8 @@ function changeShader(shader_name){
     httpv.send(null);
     httpv.onreadystatechange = function(){
         if ((httpv.readyState == 4) && (httpv.status == 200)){
-            document.getElementById("vshader").value=httpv.responseText;
+            //document.getElementById("vshader").value=httpv.responseText;
+            vshader_editor.setValue(httpv.responseText);
         }
     }
     httpf = new XMLHttpRequest();
@@ -21,7 +22,8 @@ function changeShader(shader_name){
     httpf.send(null);
     httpf.onreadystatechange = function(){
         if ((httpf.readyState == 4) && (httpf.status == 200)){
-            document.getElementById("fshader").value=httpf.responseText;
+            //document.getElementById("fshader").value=httpf.responseText;
+            fshader_editor.setValue(httpf.responseText);
             main(now_obj,1);
         }
     }
@@ -779,14 +781,16 @@ function create_shader(gl, id){
     var shader;
     //var scriptElement = document.getElementById(id);
     var script_vars = document.getElementById(id+'_vars').text;
-    var scriptElement = document.getElementById(id).value;
-
-    if(!scriptElement){return;}
+    var scriptElement;
+    //var scriptElement = document.getElementById(id).innerHTML;
     switch(id){
         case 'vshader':
+            scriptElement = vshader_editor.getValue();
+            console.log(scriptElement);
             shader = gl.createShader(gl.VERTEX_SHADER);
             break;
         case 'fshader':
+            scriptElement = fshader_editor.getValue();
             shader = gl.createShader(gl.FRAGMENT_SHADER);
             break;
         default:

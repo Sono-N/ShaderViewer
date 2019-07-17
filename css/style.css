@@ -9,7 +9,7 @@ h3 {
 
 .left{
     /*margin-top: 50px;*/
-    width: 50%;
+    width: 60%;
     float: left;
     margin-right: -100px;
     padding-right: 100px;
@@ -19,7 +19,7 @@ h3 {
     /*margin-top: 50px;*/
     position: fixed;
     right:0;
-    width: 50%;
+    width: 40%;
 }
 
 .texture::before{

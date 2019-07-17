@@ -85,8 +85,8 @@
         <input type="button" onclick="change_env('checker_board')" value="checker_board">
       </form>
       <br/>
-      <div id = "vshader_are">
-        <textarea name="vshader" class="lined" cols="80" rows="20" id="vshader">
+
+      <div id="vshader" style="height: 300px">
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec4 color;
@@ -122,10 +122,9 @@ void main(void){
     gl_Position = mvpMatrix * vec4(position, 1.0);
   }
 }
-          </textarea>
-        </div>
-        <div id = "fshader_are">
-          <textarea name="fshader" class="lined" cols="80" rows="20" id="fshader">
+      </div>
+      <br/>
+      <div id="fshader" style="height: 300px">
 uniform bool back;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
@@ -145,9 +144,24 @@ void main(void){
     gl_FragColor = backColor;
   }
 }
-          </textarea>
-        </div>
-      </form>
+      </div>  
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
+      <script>
+        vshader_editor = ace.edit("vshader"); fshader_editor = ace.edit("fshader");
+        vshader_editor.setTheme("ace/theme/monokai");
+        fshader_editor.setTheme("ace/theme/monokai");
+        vshader_editor.getSession().setMode("ace/mode/glsl");
+        fshader_editor.getSession().setMode("ace/mode/glsl");
+      </script>
+      <!--
+      <div id = "vshader_are">
+        <textarea name="vshader" class="lined" cols="80" rows="20" id="vshader">
+        </textarea>
+      </div>
+      <div id = "fshader_are">
+        <textarea name="fshader" class="lined fshader" cols="80" rows="20" id="fshader">
+        </textarea>
+      </div>
     </div>
     <script>
     $(function() {
@@ -155,6 +169,6 @@ void main(void){
         {selectedLine: 0}
       );
     });
-</script>
+    </script>-->
   </body>
 </html>
